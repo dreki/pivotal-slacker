@@ -1,0 +1,45 @@
+#!/usr/bin/env ruby
+require "rubygems"
+require "pp"
+#------------------------ Load config ----------------------------------
+require "yaml"
+
+# Read YAML config or quit.
+config = nil
+begin
+  config = YAML.load_file ".pt"
+rescue Exception => e
+  puts "No .pt file found in current directory; please create one."
+  exit 1
+end
+pp config
+#-----------------------------------------------------------------------
+
+require "commander/import"
+require "pivotal-tracker"
+
+program :version, "1.0"
+program :description, "Pivotal Tracker command line client."
+
+command :mine do |c|
+  c.syntax = "pivotal-slacker mine [options]"
+  c.summary = ""
+  c.description = "List your stories in pivotal tracker."
+  c.example "description", "command example"
+  c.option "--some-switch", "Some switch that does something"
+  c.action do |args, options|
+    # Do something or c.when_called Pivotal-slacker::Commands::Mine
+  end
+end
+
+command :create do |c|
+  c.syntax = "pivotal-slacker create [options]"
+  c.summary = ""
+  c.description = ""
+  c.example "description", "command example"
+  c.option "--some-switch", "Some switch that does something"
+  c.action do |args, options|
+    # Do something or c.when_called Pivotal-slacker::Commands::Create
+  end
+end
+
