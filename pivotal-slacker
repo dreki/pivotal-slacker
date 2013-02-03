@@ -1,19 +1,29 @@
 #!/usr/bin/env ruby
 require "rubygems"
+require "pivotal-tracker"
+require "rainbow"
 require "pp"
-#------------------------ Load config ----------------------------------
-require "yaml"
+require_relative "app_config"
 
-# Read YAML config or quit.
+# ----------------------------------------------------------
+# Load config
+
 config = nil
 begin
-  config = YAML.load_file ".pt"
+  config = AppConfig.load
 rescue Exception => e
-  puts "No .pt file found in current directory; please create one."
+  puts e
   exit 1
 end
-pp config
-#-----------------------------------------------------------------------
+
+# ----------------------------------------------------------
+# Init
+
+PivotalTracker::Client.token = config.api_key
+project= PivotalTracker::Project.find config.project
+
+# ----------------------------------------------------------
+# Main app code
 
 require "commander/import"
 require "pivotal-tracker"
@@ -29,6 +39,26 @@ command :mine do |c|
   c.option "--some-switch", "Some switch that does something"
   c.action do |args, options|
     # Do something or c.when_called Pivotal-slacker::Commands::Mine
+    
+    states = %w{unstarted started finished accepted rejected}
+    owned_by = config.user
+    
+    puts "Looking for stories owned by #{owned_by} in states: #{states}"
+
+    stories = project.stories.all(:owned_by => owned_by, :current_state => states)
+    stories.each do |story|
+      id = story.id.to_s.color("#404040")
+      name = story.name.color(:green)
+      state = story.current_state
+      
+      puts "[#{id}] #{name}, #{state}"
+    end
+    # stories.each do |story|
+    #   
+    #   puts "[#{story.id.to_s.color("#404040")}] "
+    #     + "#{story.name}".color(:green) + " "
+    #     + story.current_state
+    # end
   end
 end
 
