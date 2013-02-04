@@ -22,6 +22,10 @@ class Formatter
     requested_by.color("#3399ff")
   end
   
+  def self.owner owner
+    self.requested_by owner
+  end
+  
   def self.story_name story_name, opts={:heading => false}
     if opts[:heading] == true
       story_name.bright.underline
@@ -45,5 +49,17 @@ class Formatter
   def self.story_action comment, story_id, story_name
     story_name = Formatter.story_name(story_name, :heading => true)
     "#{comment} #{Formatter.story_id(story_id)}, #{story_name}"
+  end
+  
+  def self.story_type type
+    type.color '#99004C'
+  end
+  
+  def self.attr_descriptor descriptor, attr
+    "#{descriptor} → ".color('#333333') + attr
+  end
+  
+  def self.description description
+    description
   end
 end
