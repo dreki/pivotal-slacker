@@ -41,4 +41,9 @@ class Formatter
   def self.note_text text
     text.bright
   end
+  
+  def self.story_action comment, story_id, story_name
+    story_name = Formatter.story_name(story_name, :heading => true)
+    "#{comment} #{Formatter.story_id(story_id)}, #{story_name}"
+  end
 end

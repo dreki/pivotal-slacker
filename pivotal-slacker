@@ -118,8 +118,7 @@ command :start do |c|
     story = project.stories.find(story_id)
     story.update :current_state => "started"
     
-    story_name = Formatter.story_name(story.name, :heading => true)
-    puts "Started #{Formatter.story_id(story_id)}, #{story_name}."
+    puts Formatter.story_action("Started", story_id, story.name) + "."
   end
 end
 
@@ -128,7 +127,15 @@ command :comment do |c|
   c.description = "Comment on a given Pivotal Tracker story."
   c.example "Comment on story 123", "pivotal-slacker comment 123 \"Due to my skills I will destroy this task.\""
   c.action do |args, options|
+    story_id = args[0].to_i
+    comment = args[1]
     
+    story = project.stories.find(story_id)
+    story.notes.create :text => comment
+    
+    comment = Formatter.note_text(comment)
+    puts "#{Formatter.story_action "Commented on", story_id, story.name}:"
+    puts "#{comment}"
   end
 end
 
