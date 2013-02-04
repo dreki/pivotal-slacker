@@ -7,8 +7,8 @@ require "rainbow"
 require "action_view"
 require "launchy"
 require "pp"
-require_relative "app_config"
-require_relative "formatter"
+require "app_config"
+require "formatter"
 include ActionView::Helpers::DateHelper
 
 # ----------------------------------------------------------
