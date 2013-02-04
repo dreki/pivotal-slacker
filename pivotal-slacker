@@ -1,9 +1,14 @@
 #!/usr/bin/env ruby
+# encoding: utf-8
+
 require "rubygems"
 require "pivotal-tracker"
 require "rainbow"
+require "action_view"
+require "launchy"
 require "pp"
 require_relative "app_config"
+include ActionView::Helpers::DateHelper
 
 # ----------------------------------------------------------
 # Load config
@@ -43,22 +48,29 @@ command :mine do |c|
     states = %w{unstarted started finished accepted rejected}
     owned_by = config.user
     
-    puts "Looking for stories owned by #{owned_by} in states: #{states}"
+    puts "Looking for stories owned by #{owned_by} in states: #{states}".color("#444444")
 
     stories = project.stories.all(:owned_by => owned_by, :current_state => states)
+    stories.sort! { |a, b| a.created_at <=> b.created_at }
     stories.each do |story|
       id = story.id.to_s.color("#404040")
-      name = story.name.color(:green)
+      name = story.name # color("#4C9900").underline # (:green)
+      
       state = story.current_state
       
-      puts "[#{id}] #{name}, #{state}"
+      if state == "finished"
+        # state = state.color('009900').bright #background('009900').color('ffffff')
+        state = " ✓ #{state} ".background('#4C9900').bright.underline
+      else
+        state = state.bright # .background(:green).underline
+      end
+      
+      requested_by = story.requested_by.color("#3399ff")
+      
+      created_at = distance_of_time_in_words(Time.now, story.created_at)
+      
+      puts "[#{id}] #{name}  ~  #{state}, from #{requested_by}, created #{created_at} ago"
     end
-    # stories.each do |story|
-    #   
-    #   puts "[#{story.id.to_s.color("#404040")}] "
-    #     + "#{story.name}".color(:green) + " "
-    #     + story.current_state
-    # end
   end
 end
 
