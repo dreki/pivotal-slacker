@@ -35,7 +35,7 @@ class Formatter
   end
   
   def self.note_author author
-    author
+    self.requested_by(author)
   end
   
   def self.note_text text
