@@ -58,9 +58,9 @@ command :mine do |c|
       name = Formatter.story_name(story.name)
       state = Formatter.state(story.current_state)
       requested_by = Formatter.requested_by(story.requested_by)
-      created_at = distance_of_time_in_words(Time.now, story.created_at)
+      created_at = Formatter.time_ago(story.created_at)
       
-      puts "[#{id}] #{name}  ~  #{state}, from #{requested_by}, created #{created_at} ago"
+      puts "[#{id}] #{name}  ~  #{state}, from #{requested_by}, created #{created_at}"
     end
   end
 end
@@ -82,7 +82,17 @@ command :show do |c|
   c.action do |args, options|
     story = project.stories.find(args[0].to_i)
 
-    puts "#{Formatter.story_name(story.name)}"
+    puts "#{Formatter.story_name(story.name, :heading => true)}"
+    puts story.description
+    puts ""
+    
+    notes = story.notes.all.sort { |a, b| a.noted_at <=> b.noted_at }
+    notes.each do |note|
+      author = Formatter.note_author(note.author)
+      noted_at = Formatter.time_ago(note.noted_at)
+      note_text = Formatter.note_text(note.text)
+      puts "#{author} (#{noted_at}): #{note_text}"
+    end
   end
 end
 

@@ -22,7 +22,23 @@ class Formatter
     requested_by.color("#3399ff")
   end
   
-  def self.story_name story_name
-    story_name
+  def self.story_name story_name, opts={:heading => false}
+    if opts[:heading] == true
+      story_name.bright.underline
+    else
+      story_name
+    end
+  end
+  
+  def self.time_ago time
+    (distance_of_time_in_words(Time.now, time) + " ago").color('#404040')
+  end
+  
+  def self.note_author author
+    author
+  end
+  
+  def self.note_text text
+    text.bright
   end
 end
