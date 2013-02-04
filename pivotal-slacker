@@ -135,7 +135,7 @@ command :comment do |c|
     
     comment = Formatter.note_text(comment)
     puts "#{Formatter.story_action "Commented on", story_id, story.name}:"
-    puts "#{comment}"
+    puts "#{Formatter.note_author(config.user)}: #{comment}"
   end
 end
 
