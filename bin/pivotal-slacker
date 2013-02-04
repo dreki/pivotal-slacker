@@ -39,7 +39,6 @@ program :description, "Pivotal Tracker command line client."
 
 command :mine do |c|
   c.syntax = "pivotal-slacker mine [options]"
-  c.summary = ""
   c.description = "List your stories in pivotal tracker."
   c.example "description", "command example"
   c.option "--some-switch", "Some switch that does something"
