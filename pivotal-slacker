@@ -81,8 +81,13 @@ command :show do |c|
   c.example "Show a story with ID 123", "pivotal-slacker show 123"
   c.action do |args, options|
     story = project.stories.find(args[0].to_i)
+    state = Formatter.state(story.current_state)
+    requested_by = Formatter.requested_by(story.requested_by)
+    created_at = Formatter.time_ago(story.created_at)
 
     puts "#{Formatter.story_name(story.name, :heading => true)}"
+    puts "#{state}, from #{requested_by}, created #{created_at}"
+    puts ""
     puts story.description
     puts ""
     
@@ -93,6 +98,26 @@ command :show do |c|
       note_text = Formatter.note_text(note.text)
       puts "#{author} (#{noted_at}): #{note_text}"
     end
+    
+    # Extra padding line after notes.
+    if notes != nil and notes.size > 0
+      puts ""
+    end
+  end
+end
+
+command :start do |c|
+  c.syntax = "pivotal-slacker start story_id"
+  c.description = "Mark a given Pivotal Tracker story as \"started\"."
+  c.example "Start a story with ID 123", "pivotal-slacker start 123"
+  c.action do |args, options|
+    story_id = args[0].to_i
+    
+    story = project.stories.find(story_id)
+    story.update :current_state => "started"
+    
+    story_name = Formatter.story_name(story.name, :heading => true)
+    puts "Started #{Formatter.story_id(story_id)}, #{story_name}."
   end
 end
 
