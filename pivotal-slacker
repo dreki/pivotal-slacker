@@ -25,7 +25,7 @@ end
 # Init
 
 PivotalTracker::Client.token = config.api_key
-project= PivotalTracker::Project.find config.project
+project = PivotalTracker::Project.find config.project
 
 # ----------------------------------------------------------
 # Main app code
@@ -61,6 +61,8 @@ command :mine do |c|
       if state == "finished"
         # state = state.color('009900').bright #background('009900').color('ffffff')
         state = " ✓ #{state} ".background('#4C9900').bright.underline
+      elsif state == "accepted"
+        state = " ✓ #{state} ".background('#0080ff').color(:black).underline
       else
         state = state.bright # .background(:green).underline
       end
@@ -71,6 +73,16 @@ command :mine do |c|
       
       puts "[#{id}] #{name}  ~  #{state}, from #{requested_by}, created #{created_at} ago"
     end
+  end
+end
+
+command :open do |c|
+  c.syntax = "pivotal-slacker open story_id"
+  c.description = "Open a specific Pivotal Tracker story in the browser."
+  c.example "Open a story with ID 123", "pivotal-slacker open 123"
+  c.action do |args, options|
+    story = project.stories.find(args[0].to_i)
+    Launchy.open story.url
   end
 end
 
