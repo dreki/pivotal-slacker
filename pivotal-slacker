@@ -8,6 +8,7 @@ require "action_view"
 require "launchy"
 require "pp"
 require_relative "app_config"
+require_relative "formatter"
 include ActionView::Helpers::DateHelper
 
 # ----------------------------------------------------------
@@ -53,22 +54,10 @@ command :mine do |c|
     stories = project.stories.all(:owned_by => owned_by, :current_state => states)
     stories.sort! { |a, b| a.created_at <=> b.created_at }
     stories.each do |story|
-      id = story.id.to_s.color("#404040")
-      name = story.name # color("#4C9900").underline # (:green)
-      
-      state = story.current_state
-      
-      if state == "finished"
-        # state = state.color('009900').bright #background('009900').color('ffffff')
-        state = " ✓ #{state} ".background('#4C9900').bright.underline
-      elsif state == "accepted"
-        state = " ✓ #{state} ".background('#0080ff').color(:black).underline
-      else
-        state = state.bright # .background(:green).underline
-      end
-      
-      requested_by = story.requested_by.color("#3399ff")
-      
+      id = Formatter.story_id(story.id)
+      name = Formatter.story_name(story.name)
+      state = Formatter.state(story.current_state)
+      requested_by = Formatter.requested_by(story.requested_by)
       created_at = distance_of_time_in_words(Time.now, story.created_at)
       
       puts "[#{id}] #{name}  ~  #{state}, from #{requested_by}, created #{created_at} ago"
@@ -83,6 +72,17 @@ command :open do |c|
   c.action do |args, options|
     story = project.stories.find(args[0].to_i)
     Launchy.open story.url
+  end
+end
+
+command :show do |c|
+  c.syntax = "pivotal-slacker show story_id"  
+  c.description = "Show the details of a given Pivotal Tracker story."
+  c.example "Show a story with ID 123", "pivotal-slacker show 123"
+  c.action do |args, options|
+    story = project.stories.find(args[0].to_i)
+
+    puts "#{Formatter.story_name(story.name)}"
   end
 end
 
