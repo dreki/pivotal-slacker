@@ -85,6 +85,7 @@ command :show do |c|
     requested_by = Formatter.requested_by(story.requested_by)
     created_at = Formatter.time_ago(story.created_at)
 
+    puts ""
     puts "#{Formatter.story_name(story.name, :heading => true)}"
     puts "#{state}, from #{requested_by}, created #{created_at}"
     puts ""
