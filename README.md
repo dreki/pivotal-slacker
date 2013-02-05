@@ -65,7 +65,7 @@ Changelog
 - Removed "accepted" from the list of states in `mine`
 
 1.0.1, 1.0.2
-- Add dependencies
+- Add dependencies to gemspec
 - Update documentation
 
 1.0.0
