@@ -37,30 +37,49 @@ require "pivotal-tracker"
 program :version, "1.0"
 program :description, "Pivotal Tracker command line client."
 
+# ----------------------------------------------------------
+# Support functionality
+
+def output_story_list opts={:project => nil, :states => [], :owned_by => nil}
+  puts "Looking for stories owned by #{opts[:owned_by]} in states: #{opts[:states]}".color("#444444")
+
+  stories = opts[:project].stories.all(:owned_by => opts[:owned_by], :current_state => opts[:states])
+  stories.sort! { |a, b| a.created_at <=> b.created_at }
+  stories.each do |story|
+    id = Formatter.story_id(story.id)
+    name = Formatter.story_name(story.name)
+    state = Formatter.state(story.current_state)
+    requested_by = Formatter.requested_by(story.requested_by)
+    created_at = Formatter.time_ago(story.created_at)
+      
+    puts "[#{id}] #{name}  ~  #{state}, from #{requested_by}, created #{created_at}"
+  end
+end
+
+# ----------------------------------------------------------
+# Command-line interaction functionality
+
 command :mine do |c|
-  c.syntax = "pivotal-slacker mine [options]"
-  c.description = "List your stories in pivotal tracker."
-  c.example "description", "command example"
-  c.option "--some-switch", "Some switch that does something"
+  c.syntax = "pivotal-slacker mine"
+  c.description = "List your stories in Pivotal Tracker."
+  c.example "List your \"open\" stories", "pivotal-slacker mine"
   c.action do |args, options|
-    # Do something or c.when_called Pivotal-slacker::Commands::Mine
-    
-    states = %w{unstarted started finished accepted rejected}
+    states = %w{unstarted started finished rejected}
     owned_by = config.user
     
-    puts "Looking for stories owned by #{owned_by} in states: #{states}".color("#444444")
+    output_story_list :project => project, :states => states, :owned_by => owned_by
+  end
+end
 
-    stories = project.stories.all(:owned_by => owned_by, :current_state => states)
-    stories.sort! { |a, b| a.created_at <=> b.created_at }
-    stories.each do |story|
-      id = Formatter.story_id(story.id)
-      name = Formatter.story_name(story.name)
-      state = Formatter.state(story.current_state)
-      requested_by = Formatter.requested_by(story.requested_by)
-      created_at = Formatter.time_ago(story.created_at)
-      
-      puts "[#{id}] #{name}  ~  #{state}, from #{requested_by}, created #{created_at}"
-    end
+command :accepted do |c|
+  c.syntax = "pivotal-slacker accepted"
+  c.description = "List your accepted stories in Pivotal Tracker."
+  c.example "List your accepted stories", "pivotal-slacker accepted"
+  c.action do |args, options|
+    states = %w{accepted}
+    owned_by = config.user
+    
+    output_story_list :project => project, :states => states, :owned_by => owned_by
   end
 end
 
