@@ -53,3 +53,17 @@ Examples
 `pivotal-slacker open 123`
 
 `pivotal-slacker create --chore --owner "Jimmy Winkerbean" --name "Fix the potatobase" --description "Ore ida cut you"`
+
+Changelog
+=========
+
+1.1.0
+- Add `accepted` command for listing your stories in the "accepted" state
+- Removed "accepted" from the list of states in `mine`
+
+1.0.1, 1.0.2
+- Add dependencies
+- Update documentation
+
+1.0.0
+- Initial release
