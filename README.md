@@ -66,6 +66,9 @@ Examples
 Changelog
 =========
 
+1.6.0
+- Add story type to `show`
+
 1.5.0
 - Add story type to story list output (e.g. affects `mine`, `started`, etc.)
 - Change story type color to something more pleasing
