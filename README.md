@@ -45,6 +45,8 @@ Examples
 
 `pivotal-slacker mine`
 
+`pivotal-slacker accepted`
+
 `pivotal-slacker start 213`
 
 `pivotal-slacker finish 123`
