@@ -32,6 +32,7 @@ create               Create a new task in Pivotal Tracker.
 finish               Mark a given Pivotal Tracker story as "finished".              
 help                 Display global or [command] help documentation.                
 mine                 Lists all tasks owned by you.
+accepted             Lists all your tasks that are in the "accepted" state.
 open                 Open a specific Pivotal Tracker story in the browser.          
 show                 Show the details of a given Pivotal Tracker story.             
 start                Mark a given Pivotal Tracker story as "started".
