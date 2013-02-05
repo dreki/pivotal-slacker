@@ -60,6 +60,9 @@ Examples
 Changelog
 =========
 
+1.2.0
+- Add hyperlink to story in `show`
+
 1.1.0
 - Add `accepted` command for listing your stories in the "accepted" state
 - Removed "accepted" from the list of states in `mine`
