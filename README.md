@@ -66,6 +66,13 @@ Examples
 Changelog
 =========
 
+1.5.0
+- Add story type to story list output (e.g. affects `mine`, `started`, etc.)
+- Change story type color to something more pleasing
+
+1.4.0
+- Add `unstarted` command
+
 1.3.0
 - Add `started` command
 

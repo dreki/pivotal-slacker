@@ -52,7 +52,7 @@ class Formatter
   end
   
   def self.story_type type
-    type.color '#99004C'
+    type.color '#cc6600'
   end
   
   def self.attr_descriptor descriptor, attr

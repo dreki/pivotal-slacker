@@ -34,7 +34,7 @@ project = PivotalTracker::Project.find config.project
 require "commander/import"
 require "pivotal-tracker"
 
-program :version, "1.4.0"
+program :version, "1.5.0"
 program :description, "Pivotal Tracker command line client."
 
 # ----------------------------------------------------------
@@ -51,8 +51,9 @@ def output_story_list opts={:project => nil, :states => [], :owned_by => nil}
     state = Formatter.state(story.current_state)
     requested_by = Formatter.requested_by(story.requested_by)
     created_at = Formatter.time_ago(story.created_at)
-      
-    puts "[#{id}] #{name}  ~  #{state}, from #{requested_by}, created #{created_at}"
+    story_type = Formatter.story_type(story.story_type)
+
+    puts "[#{id}] #{name}  ~  #{state} #{story_type}, from #{requested_by}, created #{created_at}"
   end
 end
 
@@ -62,7 +63,7 @@ end
 command :mine do |c|
   c.syntax = "pivotal-slacker mine"
   c.description = "List your stories in Pivotal Tracker."
-  c.example "List your \"open\" stories", "pivotal-slacker mine"
+  c.example "List your open stories", "pivotal-slacker mine"
   c.action do |args, options|
     states = %w{unstarted started finished rejected}
     owned_by = config.user
