@@ -34,7 +34,7 @@ project = PivotalTracker::Project.find config.project
 require "commander/import"
 require "pivotal-tracker"
 
-program :version, "1.2.0"
+program :version, "1.4.0"
 program :description, "Pivotal Tracker command line client."
 
 # ----------------------------------------------------------
@@ -89,6 +89,18 @@ command :started do |c|
   c.example "List your started stories", "pivotal-slacker started"
   c.action do |args, options|
     states = %w{started}
+    owned_by = config.user
+    
+    output_story_list :project => project, :states => states, :owned_by => owned_by
+  end
+end
+
+command :unstarted do |c|
+  c.syntax = "pivotal-slacker unstarted"
+  c.description = "List your unstarted stories in Pivotal Tracker."
+  c.example "List your unstarted stories", "pivotal-slacker unstarted"
+  c.action do |args, options|
+    states = %w{unstarted}
     owned_by = config.user
     
     output_story_list :project => project, :states => states, :owned_by => owned_by
