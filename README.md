@@ -32,6 +32,7 @@ create               Create a new task in Pivotal Tracker.
 finish               Mark a given Pivotal Tracker story as "finished".              
 help                 Display global or [command] help documentation.                
 mine                 Lists all tasks owned by you.
+started              Lists all your tasks that are in the "started" state.
 accepted             Lists all your tasks that are in the "accepted" state.
 open                 Open a specific Pivotal Tracker story in the browser.          
 show                 Show the details of a given Pivotal Tracker story.             
@@ -44,6 +45,8 @@ Examples
 ========
 
 `pivotal-slacker mine`
+
+`pivotal-slacker started`
 
 `pivotal-slacker accepted`
 
@@ -59,6 +62,9 @@ Examples
 
 Changelog
 =========
+
+1.3.0
+- Add `started` command
 
 1.2.0
 - Add hyperlink to story in `show`

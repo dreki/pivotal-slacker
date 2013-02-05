@@ -83,6 +83,18 @@ command :accepted do |c|
   end
 end
 
+command :started do |c|
+  c.syntax = "pivotal-slacker started"
+  c.description = "List your started stories in Pivotal Tracker."
+  c.example "List your started stories", "pivotal-slacker started"
+  c.action do |args, options|
+    states = %w{started}
+    owned_by = config.user
+    
+    output_story_list :project => project, :states => states, :owned_by => owned_by
+  end
+end
+
 command :open do |c|
   c.syntax = "pivotal-slacker open story_id"
   c.description = "Open a specific Pivotal Tracker story in the browser."
