@@ -39,7 +39,7 @@ $menu_story_mapping = {}
 require "commander/import"
 require "pivotal-tracker"
 
-program :version, "1.7.1"
+program :version, "1.8.0"
 program :description, "Pivotal Tracker command line client."
 
 # ----------------------------------------------------------
