@@ -36,6 +36,7 @@ started              Lists all your tasks that are in the "started" state.
 unstarted            Lists all your tasks that are in the "unstarted" state.
 accepted             Lists all your tasks that are in the "accepted" state.
 shell                Shell mode allows entry of commands with less effort.
+estimate             Set the estimate for a story.
 open                 Open a specific Pivotal Tracker story in the browser.          
 show                 Show the details of a given Pivotal Tracker story.             
 start                Mark a given Pivotal Tracker story as "started".
@@ -56,6 +57,8 @@ Examples
 
 `pivotal-slacker accepted`
 
+`pivotal-slacker estimate 123 --points 1`
+
 `pivotal-slacker start 123`
 
 `pivotal-slacker finish 123`
@@ -68,6 +71,11 @@ Examples
 
 Changelog
 =========
+
+1.8.0
+- Add the `estimate` command. Example: `pivotal-slacker estimate 123 --points 1`
+- Shell mode no longer bails out when you run a command incorrectly (e.g. with missing required options).
+- Reports any errors encountered when running the `start` command. Now when you try to start an unestimated feature, you'll get an error message about it.
 
 1.7.1
 - Bugfix: In shell mode, stories were becoming cached. That has been fixed.

@@ -203,9 +203,35 @@ def define_commands
       story_id = normalize_story_id(args[0].to_i)
     
       story = $project.stories.find(story_id)
-      story.update :current_state => "started"
+      result = story.update :current_state => "started", :owned_by => $config.user
+
+      errs_array = result.errors.to_a
+      if errs_array.size > 0
+        errs_array.uniq.each do |error|  # uniq because sometimes they're duplicated.
+          puts Formatter.err error
+        end
+      else
+        puts Formatter.story_action(Formatter.state("started"), story.id, story.name) + "."
+      end
+    end
+  end
+  
+  command :estimate do |c|
+    c.syntax = "pivotal-slacker estimate story_id"
+    c.description = "Assign an estimate to a Pivotal Tracker story."
+    c.example "Estimate a story with ID 123 as being 1 point of effort", "pivotal-slacker estimate 123 --points 1"
+    c.option "--points", "The estimate in points to assign to the story"
+    c.action do |args, options|
+      options.default :points => nil
+      
+      raise "--points is required" if options.points == nil
+      
+      story_id = normalize_story_id(args[0].to_i)
     
-      puts Formatter.story_action(Formatter.state("started"), story.id, story.name) + "."
+      story = $project.stories.find(story_id)
+      result = story.update :estimate => options.points
+
+      puts Formatter.story_action("estimated", story.id, story.name) + "."
     end
   end
 
@@ -304,6 +330,7 @@ command :shell do |c|
   c.action do |args, options|
     loop do
       input = Readline::readline("pivotal-slacker> ")
+            
       break if input.nil? or input == "q" or input == "quit"
       next if input.strip == ""
       
@@ -334,8 +361,12 @@ command :shell do |c|
           menu_story_mapping = {}
         end
       end
-      
-      command.run *argv
+
+      begin
+        command.run *argv
+      rescue Exception => e
+        puts e
+      end
       
       init_new_shell_loop
     end    
