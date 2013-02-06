@@ -62,4 +62,9 @@ class Formatter
   def self.description description
     description
   end
+  
+  # Format error messages.
+  def self.err errmsg
+    errmsg.background('#990000').color(:white)
+  end
 end

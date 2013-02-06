@@ -35,6 +35,7 @@ mine                 Lists all tasks owned by you.
 started              Lists all your tasks that are in the "started" state.
 unstarted            Lists all your tasks that are in the "unstarted" state.
 accepted             Lists all your tasks that are in the "accepted" state.
+shell                Shell mode allows entry of commands with less effort.
 open                 Open a specific Pivotal Tracker story in the browser.          
 show                 Show the details of a given Pivotal Tracker story.             
 start                Mark a given Pivotal Tracker story as "started".
@@ -47,13 +48,15 @@ Examples
 
 `pivotal-slacker mine`
 
+`pivotal-tracker shell`
+
 `pivotal-slacker started`
 
 `pivotal-slacker unstarted`
 
 `pivotal-slacker accepted`
 
-`pivotal-slacker start 213`
+`pivotal-slacker start 123`
 
 `pivotal-slacker finish 123`
 
@@ -65,6 +68,15 @@ Examples
 
 Changelog
 =========
+
+1.7.0
+- Add new `shell` mode. Run `pivotal-slacker shell` to access it. Enter commands as normal once in shell mode.
+
+In shell mode, you can enter "menu numbers" for stories instead of the story IDs. I added this mode because copying and pasting story IDs significantly affects ease of use.
+
+Menu numbers for stories print to the left of stories when running listing commands -- e.g. `mine`, `started`, etc. You can then run commands like `show 1` (where "1." is listed to the left of the story you're interested in) instead of `show 456123` (which is an example of a Pivotal Tracker story ID.)
+
+Shell mode comes with Readline support, so you can go back through the history of your current `shell` session.
 
 1.6.0
 - Add story type to `show`
