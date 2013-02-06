@@ -69,6 +69,10 @@ Examples
 Changelog
 =========
 
+1.7.1
+- Bugfix: In shell mode, stories were becoming cached. That has been fixed.
+- Bugfix: `open` wasn't working correctly in shell mode.
+
 1.7.0
 - Add new `shell` mode. Run `pivotal-slacker shell` to access it. Enter commands as normal once in shell mode.
 

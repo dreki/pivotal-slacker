@@ -45,6 +45,15 @@ program :description, "Pivotal Tracker command line client."
 # ----------------------------------------------------------
 # Support functionality
 
+def init_new_shell_loop
+  # Commander doesn't act right when you try to run the same command more than once,
+  # so we have to redefine them after we use them.
+  define_commands
+  
+  # Don't let the Pivotal Tracker API client cache projects or stories.
+  $project = PivotalTracker::Project.find $config.project
+end
+
 # Supports looking up a story ID from $menu_story_mapping. If no mapping is found there, defaults
 # to `id` as passed in.
 def normalize_story_id id
@@ -143,7 +152,8 @@ def define_commands
     c.description = "Open a specific Pivotal Tracker story in the browser."
     c.example "Open a story with ID 123", "pivotal-slacker open 123"
     c.action do |args, options|
-      story = $project.stories.find(args[0].to_i)
+      story_id = normalize_story_id(args[0].to_i)
+      story = $project.stories.find(story_id)
       Launchy.open story.url
     end
   end
@@ -327,9 +337,7 @@ command :shell do |c|
       
       command.run *argv
       
-      # Commander doesn't act right when you try to run the same command more than once,
-      # so we have to redefine them after we use them.
-      define_commands
+      init_new_shell_loop
     end    
   end
 end
