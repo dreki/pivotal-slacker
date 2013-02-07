@@ -8,6 +8,9 @@ require "action_view"
 require "launchy"
 require "readline"
 require "shellwords"
+require "nokogiri"
+require "net/http"
+require "uri"
 require "pp"
 require "app_config"
 require "formatter"
@@ -28,28 +31,44 @@ end
 # Init
 
 PivotalTracker::Client.token = $config.api_key
-$project = PivotalTracker::Project.find $config.project
+$project = PivotalTracker::Project.find($config.project)
 
 # For `shell` mode, to retain menu number history.
 $menu_story_mapping = {}
 
-# ----------------------------------------------------------
-# Main app code
 
 require "commander/import"
 require "pivotal-tracker"
 
-program :version, "1.8.0"
+program :version, "1.8.1"
 program :description, "Pivotal Tracker command line client."
 
 # ----------------------------------------------------------
 # Support functionality
 
+require 'rubygems'
+require 'active_resource'
+
+# Defining this method because retrieving stories from PivotalTracker::Iteration doesn't work right.
+def get_first_story opts={:project => nil, :group => "icebox"}
+  resource_uri = URI.parse(
+    "http://www.pivotaltracker.com/services/v3/projects/#{opts[:project].id}/iterations/#{opts[:group]}"
+  )
+  response = Net::HTTP.start(resource_uri.host, resource_uri.port) do |http|
+    http.get(resource_uri.path, {"X-TrackerToken" => $config.api_key})
+  end
+  
+  xml = Nokogiri.XML(response.body)
+  target_story_id = xml.xpath("//story").xpath("./id").first.content.strip.to_i
+
+  opts[:project].stories.find target_story_id
+end
+
 def init_new_shell_loop
   # Commander doesn't act right when you try to run the same command more than once,
   # so we have to redefine them after we use them.
   define_commands
-  
+
   # Don't let the Pivotal Tracker API client cache projects or stories.
   $project = PivotalTracker::Project.find $config.project
 end
@@ -58,7 +77,7 @@ end
 # to `id` as passed in.
 def normalize_story_id id
   mapped = $menu_story_mapping[id]
-  
+
   if mapped != nil
     mapped
   else
@@ -81,18 +100,21 @@ def output_story_list opts={:project => nil, :states => [], :owned_by => nil, :m
     requested_by = Formatter.requested_by(story.requested_by)
     created_at = Formatter.time_ago(story.created_at)
     story_type = Formatter.story_type(story.story_type)
-    
+
     menu_output = nil
     if opts[:menu]
       $menu_story_mapping[menu_number] = story.id
       menu_output = "#{menu_number}. "
-      
+
       menu_number += 1
     end
 
     puts "#{menu_output}[#{id}] #{name}  ~  #{state} #{story_type}, from #{requested_by}, created #{created_at}"
   end
 end
+
+# ----------------------------------------------------------
+# Main app code
 
 # ----------------------------------------------------------
 # Command-line interaction functionality
@@ -106,7 +128,7 @@ def define_commands
     c.action do |args, options|
       states = %w{unstarted started finished rejected}
       owned_by = $config.user
-    
+
       output_story_list :project => $project, :states => states, :owned_by => owned_by, :menu => options.menu
     end
   end
@@ -118,7 +140,7 @@ def define_commands
     c.action do |args, options|
       states = %w{accepted}
       owned_by = $config.user
-    
+
       output_story_list :project => $project, :states => states, :owned_by => owned_by
     end
   end
@@ -130,7 +152,7 @@ def define_commands
     c.action do |args, options|
       states = %w{started}
       owned_by = $config.user
-    
+
       output_story_list :project => $project, :states => states, :owned_by => owned_by
     end
   end
@@ -142,7 +164,7 @@ def define_commands
     c.action do |args, options|
       states = %w{unstarted}
       owned_by = $config.user
-    
+
       output_story_list :project => $project, :states => states, :owned_by => owned_by
     end
   end
@@ -159,7 +181,7 @@ def define_commands
   end
 
   command :show do |c|
-    c.syntax = "pivotal-slacker show story_id"  
+    c.syntax = "pivotal-slacker show story_id"
     c.description = "Show the details of a given Pivotal Tracker story."
     c.example "Show a story with ID 123", "pivotal-slacker show 123"
     c.action do |args, options|
@@ -178,7 +200,7 @@ def define_commands
       puts ""
       puts Formatter.description(story.description)
       puts ""
-    
+
       notes = story.notes.all.sort { |a, b| a.noted_at <=> b.noted_at }
       notes.each do |note|
         author = Formatter.note_author(note.author)
@@ -186,12 +208,12 @@ def define_commands
         note_text = Formatter.note_text(note.text)
         puts "#{author} (#{noted_at}): #{note_text}"
       end
-    
+
       # Extra padding line after notes.
       if notes != nil and notes.size > 0
         puts ""
       end
-    
+
     end
   end
 
@@ -201,7 +223,7 @@ def define_commands
     c.example "Start a story with ID 123", "pivotal-slacker start 123"
     c.action do |args, options|
       story_id = normalize_story_id(args[0].to_i)
-    
+
       story = $project.stories.find(story_id)
       result = story.update :current_state => "started", :owned_by => $config.user
 
@@ -215,7 +237,7 @@ def define_commands
       end
     end
   end
-  
+
   command :estimate do |c|
     c.syntax = "pivotal-slacker estimate story_id"
     c.description = "Assign an estimate to a Pivotal Tracker story."
@@ -223,11 +245,11 @@ def define_commands
     c.option "--points", "The estimate in points to assign to the story"
     c.action do |args, options|
       options.default :points => nil
-      
+
       raise "--points is required" if options.points == nil
-      
+
       story_id = normalize_story_id(args[0].to_i)
-    
+
       story = $project.stories.find(story_id)
       result = story.update :estimate => options.points
 
@@ -242,10 +264,10 @@ def define_commands
     c.action do |args, options|
       story_id = normalize_story_id(args[0].to_i)
       comment = args[1]
-    
+
       story = $project.stories.find(story_id)
       story.notes.create :text => comment
-    
+
       comment = Formatter.note_text(comment)
       puts "#{Formatter.story_action "Commented on", story.id, story.name}:"
       puts "#{Formatter.note_author($config.user)}: #{comment}"
@@ -258,10 +280,10 @@ def define_commands
     c.example "Finish a story with ID 123", "pivotal-slacker finish 123"
     c.action do |args, options|
       story_id = normalize_story_id(args[0].to_i)
-    
+
       story = $project.stories.find(story_id)
       story.update :current_state => "finished"
-    
+
       puts Formatter.story_action(Formatter.state("finished"), story.id, story.name) + "."
     end
   end
@@ -273,20 +295,32 @@ def define_commands
     c.option "--feature", "Designate the story as a feature"
     c.option "--bug", "Designate the story as a bug"
     c.option "--chore", "Designate the story as a chore"
+    c.option "--backlog", "Put this story at the top of the topmost 'Backlog' iteration"
     c.option "--release", "Designate the story as a release"
     c.option "--owner STRING", String, "Assigns the story to a user"
     c.option "--name STRING", String, "Name of story"
     c.option "--description STRING", String, "Description of story"
     c.action do |args, options|
-      options.default :chore => false, :owner => $config.user, :name => nil, :description => nil
-    
+      options.default(
+        :chore => false, :owner => $config.user, :name => nil, :description => nil
+      )
+
       raise "--name is required" if options.name == nil
       raise "--description is required" if options.description == nil
+
+      if not options.feature and not options.bug and not options.chore and not options.release
+        raise "Story type is required (e.g. --chore)"
+      end
 
       story_type = "feature" if options.feature
       story_type = "bug" if options.bug
       story_type = "chore" if options.chore
       story_type = "release" if options.release
+
+      iteration = nil
+      if options.backlog
+        iteration = "backlog"
+      end
 
       puts ""
       puts Formatter.story_name(options.name, :heading => true)
@@ -294,8 +328,11 @@ def define_commands
       puts "#{Formatter.attr_descriptor('requested by', Formatter.owner($config.user))}"
       puts "#{Formatter.attr_descriptor('owned by', Formatter.owner(options.owner))}"
       puts "#{Formatter.attr_descriptor('description is', Formatter.description(options.description))}"
+      if iteration
+        puts "#{Formatter.attr_descriptor('iteration is', Formatter.iteration(iteration))}"        
+      end
       puts ""
-    
+
       if agree "Really create? (y/n)"
         story = $project.stories.create(
           :name => options.name,
@@ -304,6 +341,13 @@ def define_commands
           :requested_by => $config.user,
           :owned_by => options.owner
         )
+        
+        # If asked to, put the story at the top of the backlog.
+        if options.backlog
+          first_backlog_story = get_first_story :project => $project, :group => "backlog"
+          story.move(:before, first_backlog_story)
+        end
+        
         puts Formatter.story_action("Created", story.id, story.name)
       else
         puts "Didn't create story."
@@ -318,7 +362,7 @@ command :shell do |c|
   c.syntax = "pivotal-slacker shell"
   c.description = %q{
     The pivotal-slacker shell mode allows entry of commands with less effort.
-    
+
     In shell mode you can run commands as normal. You can also enter "menu numbers"
     (listed to the left of stories in story listings) instead of story IDs when running
     commands (e.g. `show 3` instead of `show 456123`).
@@ -330,32 +374,32 @@ command :shell do |c|
   c.action do |args, options|
     loop do
       input = Readline::readline("pivotal-slacker> ")
-            
+
       break if input.nil? or input == "q" or input == "quit"
       next if input.strip == ""
-      
+
       # Add input to Readinput history.
       Readline::HISTORY.push(input)
 
       # Turn output into an ARGV array.
-      argv = Shellwords.shellwords input  
-      
+      argv = Shellwords.shellwords input
+
       # Shift the command name off the ARGV array; Commander doesn't want it in there.
       command_name = argv.shift
       command = command(command_name.to_sym)
-      
+
       if command.nil?
         puts Formatter.err "No such command, \"#{command_name}\""
         next
       end
-      
+
       # Tell all commands to be in "menu" mode (print list numbers, save list number history, etc.)
       # Only do this if the command supports --menu.
       command.options.each do |option|
         args = option[:args]
         if (not args.nil?) and args.include? "--menu"
           argv.push "--menu"
-          
+
           # Reset the menu mapping, since the command we're about to call will update them,
           # and we want this mapping to not have any stale data in it.
           menu_story_mapping = {}
@@ -367,8 +411,8 @@ command :shell do |c|
       rescue Exception => e
         puts e
       end
-      
+
       init_new_shell_loop
-    end    
+    end
   end
 end

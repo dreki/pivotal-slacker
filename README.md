@@ -72,6 +72,9 @@ Examples
 Changelog
 =========
 
+1.8.1
+- `create` now supports the `--backlog` option. Specifying this option causes the newly created story to be placed at the top of the topmost Backlog iteration.
+
 1.8.0
 - Add the `estimate` command. Example: `pivotal-slacker estimate 123 --points 1`
 - Shell mode no longer bails out when you run a command incorrectly (e.g. with missing required options).
