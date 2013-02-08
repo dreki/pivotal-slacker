@@ -72,6 +72,9 @@ Examples
 Changelog
 =========
 
+1.8.2
+- `show` and commands that list stories (e.g. `mine`) now display labels (aka tags).
+
 1.8.1
 - `create` now supports the `--backlog` option. Specifying this option causes the newly created story to be placed at the top of the topmost Backlog iteration.
 

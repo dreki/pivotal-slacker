@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name        = 'pivotal-slacker'
-  s.version     = '1.8.1'
+  s.version     = '1.8.2'
   s.date        = '2013-02-07'
   s.summary     = "A command-line client for Pivotal Tracker."
   s.description = "If you're overwhelmed with or tired of using the Pivotal Tracker web UI, use this!"

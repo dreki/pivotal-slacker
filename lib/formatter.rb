@@ -67,6 +67,10 @@ class Formatter
     "#{iteration}".color('#cccc00')
   end
   
+  def self.label label
+    "#{label}".color('#003366')
+  end
+  
   # Format error messages.
   def self.err errmsg
     errmsg.background('#990000').color(:white)

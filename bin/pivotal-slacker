@@ -40,7 +40,7 @@ $menu_story_mapping = {}
 require "commander/import"
 require "pivotal-tracker"
 
-program :version, "1.8.1"
+program :version, "1.8.2"
 program :description, "Pivotal Tracker command line client."
 
 # ----------------------------------------------------------
@@ -57,7 +57,7 @@ def get_first_story opts={:project => nil, :group => "icebox"}
   response = Net::HTTP.start(resource_uri.host, resource_uri.port) do |http|
     http.get(resource_uri.path, {"X-TrackerToken" => $config.api_key})
   end
-  
+
   xml = Nokogiri.XML(response.body)
   target_story_id = xml.xpath("//story").xpath("./id").first.content.strip.to_i
 
@@ -101,6 +101,9 @@ def output_story_list opts={:project => nil, :states => [], :owned_by => nil, :m
     created_at = Formatter.time_ago(story.created_at)
     story_type = Formatter.story_type(story.story_type)
 
+    labels = Formatter.label(story.labels.gsub(/,/, ", ")) if not story.labels.nil?
+    labels = " #{labels}" if labels != ""
+
     menu_output = nil
     if opts[:menu]
       $menu_story_mapping[menu_number] = story.id
@@ -109,7 +112,7 @@ def output_story_list opts={:project => nil, :states => [], :owned_by => nil, :m
       menu_number += 1
     end
 
-    puts "#{menu_output}[#{id}] #{name}  ~  #{state} #{story_type}, from #{requested_by}, created #{created_at}"
+    puts "#{menu_output}[#{id}] #{name}#{labels}  ~  #{state} #{story_type}, from #{requested_by}, created #{created_at}"
   end
 end
 
@@ -193,9 +196,12 @@ def define_commands
       created_at = Formatter.time_ago("created #{story.created_at}")
       story_type = Formatter.story_type(story.story_type)
 
+      labels = Formatter.label(story.labels.gsub(/,/, ", ")) if not story.labels.nil?
+      labels = "#{labels}  ~  " if labels != ""
+
       puts ""
       puts "[#{id}] #{Formatter.story_name(story.name, :heading => true)}"
-      puts "#{state} #{story_type}, from #{requested_by}, #{created_at}"
+      puts "#{labels}#{state} #{story_type}, from #{requested_by}, #{created_at}"
       puts "☛  #{story.url.color('#0066CC').underline}"
       puts ""
       puts Formatter.description(story.description)
@@ -329,7 +335,7 @@ def define_commands
       puts "#{Formatter.attr_descriptor('owned by', Formatter.owner(options.owner))}"
       puts "#{Formatter.attr_descriptor('description is', Formatter.description(options.description))}"
       if iteration
-        puts "#{Formatter.attr_descriptor('iteration is', Formatter.iteration(iteration))}"        
+        puts "#{Formatter.attr_descriptor('iteration is', Formatter.iteration(iteration))}"
       end
       puts ""
 
@@ -341,13 +347,13 @@ def define_commands
           :requested_by => $config.user,
           :owned_by => options.owner
         )
-        
+
         # If asked to, put the story at the top of the backlog.
         if options.backlog
           first_backlog_story = get_first_story :project => $project, :group => "backlog"
           story.move(:before, first_backlog_story)
         end
-        
+
         puts Formatter.story_action("Created", story.id, story.name)
       else
         puts "Didn't create story."
