@@ -72,6 +72,9 @@ Examples
 Changelog
 =========
 
+1.8.3
+- Add missing `commander` to dependencies. Sorry about that.
+
 1.8.2
 - `show` and commands that list stories (e.g. `mine`) now display labels (aka tags).
 
