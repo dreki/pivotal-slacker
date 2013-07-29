@@ -129,7 +129,7 @@ def define_commands
     c.example "List your open stories", "pivotal-slacker mine"
     c.option "--menu", "Print an easily-navigable menu for stories. Only useful for `shell` mode"
     c.action do |args, options|
-      states = %w{unstarted started finished rejected}
+      states = %w{unscheduled unstarted started finished rejected}
       owned_by = $config.user
 
       output_story_list :project => $project, :states => states, :owned_by => owned_by, :menu => options.menu

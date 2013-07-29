@@ -72,6 +72,12 @@ Examples
 Changelog
 =========
 
+1.9.1
+- Updating activesupport dependency to specifically reference a 3.2.x version so as to avoid 4.x errors on install.
+
+1.9.0
+- Added "unscheduled" to default scope (e.g. when running `mine`). It seems like they should be included here and didn't used to be.
+
 1.8.3
 - Add missing `commander` to dependencies. Sorry about that.
 
