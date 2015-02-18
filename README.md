@@ -72,8 +72,8 @@ Examples
 Changelog
 =========
 
-1.9.2
-- Include active_resource as a dependency. Should've been included and was causing crashes for those who didn't already have it.
+1.9.4 (nee 1.9.3, nee 1.9.2)
+- Include activeresource as a dependency. Should've been included and was causing crashes for those who didn't already have it.
 
 1.9.1
 - Updating activesupport dependency to specifically reference a 3.2.x version so as to avoid 4.x errors on install.

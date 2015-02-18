@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name        = 'pivotal-slacker'
-  s.version     = '1.9.2'
+  s.version     = '1.9.4'
   s.date        = '2015-02-18'
   s.summary     = "A command-line client for Pivotal Tracker."
   s.description = "If you're overwhelmed with or tired of using the Pivotal Tracker web UI, use this!"
@@ -11,7 +11,7 @@ Gem::Specification.new do |s|
   s.add_dependency "actionpack", "3.2.13"
   s.add_dependency "launchy"
   s.add_dependency "commander"
-  s.add_dependency "activeresource"
+  s.add_dependency "activeresource", "3.2.13"
   s.files       = ["lib/formatter.rb", "lib/app_config.rb"]
   s.executables << "pivotal-slacker"
   s.homepage    =
